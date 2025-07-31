@@ -128,10 +128,6 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
 
       setMessages(prev => [...prev, aiMessage]);
 
-      // Move to next question if we're still in the question phase
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
-      }
 
     } catch (error: any) {
       console.error('Error sending message:', error);
@@ -154,9 +150,6 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
     }
   };
 
-  const sendQuickResponse = (question: string) => {
-    sendMessage(question);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-hero flex flex-col">
@@ -232,24 +225,6 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
               </Card>
             ))}
 
-            {/* Quick Question Suggestions */}
-            {messages.length > 0 && currentQuestionIndex < questions.length && (
-              <Card className="max-w-3xl mr-auto border-primary/20 bg-primary/5">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm text-primary">Suggested next question:</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <Button
-                    variant="outline"
-                    onClick={() => sendQuickResponse(questions[currentQuestionIndex])}
-                    className="text-left h-auto p-3 whitespace-normal hover:shadow-gold transition-all duration-300"
-                    disabled={isLoading}
-                  >
-                    {questions[currentQuestionIndex]}
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
 
             {isLoading && (
               <Card className="max-w-3xl mr-auto bg-card border-border/50">

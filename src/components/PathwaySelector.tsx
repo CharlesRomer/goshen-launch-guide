@@ -64,7 +64,7 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
         </div>
 
         {/* Pathway Cards */}
-        <div className="grid gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {pathways.map((pathway, index) => {
             const Icon = pathway.icon;
             const isSelected = selectedPathway === pathway.id;
@@ -74,27 +74,27 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
                 key={pathway.id} 
                 className={`
                   group cursor-pointer transition-all duration-300 hover:shadow-gold hover:scale-[1.02]
-                  border-border/50 hover:border-primary/50
+                  border-border/50 hover:border-primary/50 aspect-square
                   ${isSelected ? 'ring-2 ring-primary shadow-gold scale-[1.02]' : ''}
                   animate-fade-in
                 `}
                 style={{ animationDelay: `${index * 100}ms` }}
                 onClick={() => handleSelect(pathway.id)}
               >
-                <CardHeader className="pb-4">
-                  <div className="flex items-start gap-4">
+                <CardHeader className="pb-4 h-full flex flex-col">
+                  <div className="flex flex-col items-center text-center gap-4 flex-1">
                     <div className={`
-                      p-3 rounded-lg bg-gradient-to-br ${pathway.gradient} 
+                      p-4 rounded-lg bg-gradient-to-br ${pathway.gradient} 
                       group-hover:shadow-gold transition-all duration-300
                       ${isSelected ? 'animate-pulse-gold' : ''}
                     `}>
-                      <Icon className="h-6 w-6 text-primary" />
+                      <Icon className="h-8 w-8 text-primary" />
                     </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-xl mb-2 group-hover:text-primary transition-colors">
+                    <div className="flex-1 flex flex-col justify-center">
+                      <CardTitle className="text-lg mb-3 group-hover:text-primary transition-colors leading-tight">
                         {pathway.title}
                       </CardTitle>
-                      <CardDescription className="text-base">
+                      <CardDescription className="text-sm leading-relaxed">
                         {pathway.description}
                       </CardDescription>
                     </div>

@@ -23,10 +23,10 @@ serve(async (req) => {
 
     console.log('AI Coaching request:', { sessionId, pathwayStage, message });
 
-    // Get the prompt for this pathway
+    // Get the prompt and questions for this pathway
     const { data: promptData, error: promptError } = await supabase
       .from('prompts')
-      .select('system_prompt_text')
+      .select('system_prompt_text, questions')
       .eq('stage_label', pathwayStage)
       .single();
 
@@ -48,12 +48,33 @@ serve(async (req) => {
     }
 
     const conversationHistory = sessionData.conversation_log || [];
+    const questions = (promptData.questions as string[]) || [];
+    
+    // Count user messages to determine which question we're on
+    const userMessageCount = conversationHistory.filter((msg: any) => msg.role === 'user').length;
+    const currentQuestionIndex = userMessageCount;
+    const isInQuestionPhase = currentQuestionIndex < questions.length;
+    
+    // Modify system prompt based on conversation phase
+    let systemPrompt = promptData.system_prompt_text;
+    
+    if (isInQuestionPhase) {
+      systemPrompt += `\n\nIMPORTANT: You are currently in the question-asking phase. You must ask questions one by one and wait for answers before giving any detailed analysis or recommendations. You are currently asking question ${currentQuestionIndex + 1} of ${questions.length}. After the user answers this question, ask the next question. Only after ALL questions are answered should you provide your comprehensive analysis and recommendations.`;
+      
+      if (questions[currentQuestionIndex]) {
+        systemPrompt += `\n\nNext question to ask: "${questions[currentQuestionIndex]}"`;
+      }
+    } else {
+      systemPrompt += `\n\nYou have now asked all ${questions.length} questions and received answers. Provide your comprehensive analysis, insights, and detailed recommendations based on all the information gathered.`;
+    }
+    
+    console.log('Question phase status:', { isInQuestionPhase, currentQuestionIndex, totalQuestions: questions.length });
 
     // Prepare messages for OpenAI
     const messages = [
       {
         role: 'system',
-        content: promptData.system_prompt_text
+        content: systemPrompt
       },
       ...conversationHistory.map((msg: any) => ({
         role: msg.role,
