@@ -2,6 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Dark mode color palette with deep gold accents */
+  --background: 220 13% 8%;
+  --foreground: 210 40% 98%;
+  
+  --card: 220 13% 11%;
+  --card-foreground: 210 40% 98%;
+  
+  --popover: 220 13% 11%;
+  --popover-foreground: 210 40% 98%;
+  
+  --primary: 43 96% 56%;  /* Deep gold */
+  --primary-foreground: 220 13% 8%;
+  
+  --secondary: 220 13% 15%;
+  --secondary-foreground: 210 40% 98%;
+  
+  --muted: 220 13% 15%;
+  --muted-foreground: 215 20.2% 65.1%;
+  
+  --accent: 43 96% 56%;  /* Deep gold accent */
+  --accent-foreground: 220 13% 8%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  
+  --border: 220 13% 18%;
+  --input: 220 13% 18%;
+  --ring: 43 96% 56%;  /* Deep gold ring */
+  
+  --radius: 0.75rem;
+  
+  /* Custom design tokens */
+  --gradient-primary: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 92% 50%));
+  --gradient-hero: linear-gradient(180deg, hsl(220 13% 8%), hsl(220 13% 11%));
+  --shadow-gold: 0 10px 30px -10px hsl(43 96% 56% / 0.3);
+  --shadow-elegant: 0 25px 50px -12px hsl(220 13% 4% / 0.8);
+  
+  /* Animation curves */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark {
+  --background: 220 13% 8%;
+  --foreground: 210 40% 98%;
+  
+  --card: 220 13% 11%;
+  --card-foreground: 210 40% 98%;
+  
+  --popover: 220 13% 11%;
+  --popover-foreground: 210 40% 98%;
+  
+  --primary: 43 96% 56%;
+  --primary-foreground: 220 13% 8%;
+  
+  --secondary: 220 13% 15%;
+  --secondary-foreground: 210 40% 98%;
+  
+  --muted: 220 13% 15%;
+  --muted-foreground: 215 20.2% 65.1%;
+  
+  --accent: 43 96% 56%;
+  --accent-foreground: 220 13% 8%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  
+  --border: 220 13% 18%;
+  --input: 220 13% 18%;
+  --ring: 43 96% 56%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
