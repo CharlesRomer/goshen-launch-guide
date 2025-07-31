@@ -77,7 +77,13 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
       if (conversationLog.length === 0) {
         const welcomeMessage: Message = {
           role: 'assistant',
-          content: `Welcome! I'm your ${pathwayTitles[pathwayStage as keyof typeof pathwayTitles]}. I'm here to help you gain clarity and confidence in your next steps. Let's start with a few questions to understand your situation better.`,
+          content: `Welcome! I'm your ${pathwayTitles[pathwayStage as keyof typeof pathwayTitles]}. I'm here to help you gain clarity and confidence in your next steps. Let's start with a few questions to understand your situation better.
+
+---
+
+**Ready to begin?** 
+
+Type "Yes" to get started with your personalized coaching session.`,
           timestamp: new Date().toISOString()
         };
         setMessages([welcomeMessage]);
