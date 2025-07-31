@@ -77,8 +77,10 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: messages,
-        temperature: 0.8,
+        temperature: 0.3,
         max_tokens: 1000,
+        presence_penalty: 0.1,
+        frequency_penalty: 0.1,
       }),
     });
 
