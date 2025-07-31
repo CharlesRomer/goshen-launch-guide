@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Send, Loader2, RotateCcw, MessageCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -209,15 +210,20 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
                       {message.role === 'assistant' ? 'AI' : 'You'}
                     </div>
                     <div className="flex-1">
-                      <div className="prose prose-sm max-w-none text-foreground">
-                        {message.content.split('\n').map((line, i) => (
-                          <p key={i} className={`
-                            ${line.startsWith('**') && line.endsWith('**') ? 'font-semibold text-primary' : ''}
-                            ${i === 0 ? 'mt-0' : ''}
-                          `}>
-                            {line.replace(/\*\*(.*?)\*\*/g, '$1')}
-                          </p>
-                        ))}
+                      <div className="prose prose-sm max-w-none text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                        <ReactMarkdown
+                          components={{
+                            h1: ({ children }) => <h1 className="text-lg font-bold text-primary mb-3">{children}</h1>,
+                            h2: ({ children }) => <h2 className="text-base font-semibold text-primary mb-2 mt-4">{children}</h2>,
+                            h3: ({ children }) => <h3 className="text-sm font-semibold text-primary mb-2 mt-3">{children}</h3>,
+                            hr: () => <hr className="border-border my-4" />,
+                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                            strong: ({ children }) => <strong className="font-semibold text-primary">{children}</strong>,
+                            em: ({ children }) => <em className="italic text-muted-foreground">{children}</em>,
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
                       </div>
                     </div>
                   </div>
