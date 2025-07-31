@@ -10,7 +10,7 @@ interface PathwaySelectorProps {
 const pathways = [
   {
     id: 'no_idea',
-    title: "I don't have an idea — I need one",
+    title: "I don't have an idea yet — help me find one",
     description: "Discover your calling through guided exploration of your gifts and passions",
     icon: Lightbulb,
     gradient: "from-primary/20 to-primary/5",
