@@ -50,7 +50,7 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+    <div className="bg-gradient-hero flex items-center justify-center p-4 py-12">
       <div className="max-w-4xl w-full space-y-8">
         {/* Header */}
         <div className="text-center space-y-4 animate-fade-in">
@@ -64,57 +64,57 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
         </div>
 
         {/* Pathway Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="flex flex-col gap-3 max-w-3xl mx-auto">
           {pathways.map((pathway, index) => {
             const Icon = pathway.icon;
             const isSelected = selectedPathway === pathway.id;
             const pathNumber = index + 1;
             
             return (
-              <Card 
-                key={pathway.id} 
+              <Button
+                key={pathway.id}
+                variant={isSelected ? "default" : "outline"}
                 className={`
-                  group cursor-pointer transition-all duration-300 hover:shadow-gold hover:scale-[1.02]
-                  border-border/50 hover:border-primary/50 relative
-                  ${isSelected ? 'ring-2 ring-primary shadow-gold scale-[1.02]' : ''}
+                  group h-auto p-4 justify-start text-left transition-all duration-300
+                  hover:shadow-gold hover:scale-[1.01] w-full
+                  ${isSelected ? 'ring-2 ring-primary shadow-gold scale-[1.01]' : ''}
                   animate-fade-in
                 `}
                 style={{ animationDelay: `${index * 100}ms` }}
                 onClick={() => handleSelect(pathway.id)}
               >
-                {/* Path Number */}
-                <div className="absolute -top-3 -left-3 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">
-                  {pathNumber}
-                </div>
-                
-                <CardHeader className="p-4 h-full flex flex-col">
-                  <div className="flex items-start gap-3 h-full">
-                    <div className={`
-                      p-2 rounded-lg bg-gradient-to-br ${pathway.gradient} 
-                      group-hover:shadow-gold transition-all duration-300 flex-shrink-0
-                      ${isSelected ? 'animate-pulse-gold' : ''}
-                    `}>
-                      <Icon className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-4 w-full">
+                  {/* Path Number */}
+                  <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                    {pathNumber}
+                  </div>
+                  
+                  {/* Icon */}
+                  <div className={`
+                    p-2 rounded-lg bg-gradient-to-br ${pathway.gradient} 
+                    group-hover:shadow-gold transition-all duration-300 flex-shrink-0
+                  `}>
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-base mb-1 group-hover:text-primary transition-colors">
+                      {pathway.title}
                     </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base mb-2 group-hover:text-primary transition-colors leading-tight">
-                        {pathway.title}
-                      </CardTitle>
-                      <CardDescription className="text-xs leading-relaxed mb-3">
-                        {pathway.description}
-                      </CardDescription>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary transition-colors">
-                        <span>Choose Path {pathNumber}</span>
-                        <ArrowRight className={`
-                          h-3 w-3 transition-all duration-300 group-hover:translate-x-1
-                          ${isSelected ? 'translate-x-1' : ''}
-                        `} />
-                      </div>
+                    <div className="text-sm text-muted-foreground">
+                      {pathway.description}
                     </div>
                   </div>
-                </CardHeader>
-              </Card>
+                  
+                  {/* Arrow */}
+                  <ArrowRight className={`
+                    h-5 w-5 text-muted-foreground group-hover:text-primary 
+                    transition-all duration-300 group-hover:translate-x-1 flex-shrink-0
+                    ${isSelected ? 'text-primary translate-x-1' : ''}
+                  `} />
+                </div>
+              </Button>
             );
           })}
         </div>
