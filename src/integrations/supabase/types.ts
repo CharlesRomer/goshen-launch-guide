@@ -14,7 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      prompts: {
+        Row: {
+          created_at: string
+          id: string
+          prompt_name: string
+          questions: Json | null
+          stage_label: Database["public"]["Enums"]["pathway_stage"]
+          system_prompt_text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prompt_name: string
+          questions?: Json | null
+          stage_label: Database["public"]["Enums"]["pathway_stage"]
+          system_prompt_text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prompt_name?: string
+          questions?: Json | null
+          stage_label?: Database["public"]["Enums"]["pathway_stage"]
+          system_prompt_text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          completed: boolean | null
+          conversation_log: Json | null
+          created_at: string
+          id: string
+          pathway_stage: Database["public"]["Enums"]["pathway_stage"]
+          profile_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          completed?: boolean | null
+          conversation_log?: Json | null
+          created_at?: string
+          id?: string
+          pathway_stage: Database["public"]["Enums"]["pathway_stage"]
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          completed?: boolean | null
+          conversation_log?: Json | null
+          created_at?: string
+          id?: string
+          pathway_stage?: Database["public"]["Enums"]["pathway_stage"]
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +111,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      pathway_stage: "no_idea" | "idea_validation" | "improvement" | "scaling"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +238,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      pathway_stage: ["no_idea", "idea_validation", "improvement", "scaling"],
+    },
   },
 } as const
