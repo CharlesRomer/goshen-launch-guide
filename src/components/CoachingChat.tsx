@@ -33,8 +33,8 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false); // Start hidden
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -42,8 +42,14 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   const isMobile = useIsMobile();
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && !isKeyboardOpen) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  };
+
+  const scrollToBottomImmediate = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "auto", block: "end" });
     }
   };
 
@@ -56,33 +62,38 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   }, [sessionId]);
 
   useEffect(() => {
-    // Handle mobile keyboard and viewport changes
+    // Mobile viewport and keyboard handling
     if (isMobile) {
-      const handleResize = () => {
-        const visualViewport = window.visualViewport;
-        if (visualViewport) {
-          const keyboardHeight = window.innerHeight - visualViewport.height;
-          setKeyboardHeight(keyboardHeight);
-          
-          // Auto-scroll to bottom when keyboard opens/closes
-          setTimeout(() => {
-            scrollToBottom();
-          }, 100);
+      const handleViewportChange = () => {
+        const currentHeight = window.visualViewport?.height || window.innerHeight;
+        const standardHeight = window.screen.height;
+        const heightDifference = standardHeight - currentHeight;
+        
+        // Keyboard is considered open if viewport shrinks significantly
+        const keyboardOpen = heightDifference > 150;
+        
+        setViewportHeight(currentHeight);
+        setIsKeyboardOpen(keyboardOpen);
+        
+        // When keyboard opens, immediately scroll to bottom
+        if (keyboardOpen) {
+          setTimeout(scrollToBottomImmediate, 50);
         }
       };
-      
-      const handleViewportChange = () => {
-        handleResize();
-      };
+
+      // Initial setup
+      handleViewportChange();
 
       if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', handleViewportChange);
+        window.visualViewport.addEventListener('scroll', handleViewportChange);
         return () => {
           window.visualViewport?.removeEventListener('resize', handleViewportChange);
+          window.visualViewport?.removeEventListener('scroll', handleViewportChange);
         };
       } else {
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        window.addEventListener('resize', handleViewportChange);
+        return () => window.removeEventListener('resize', handleViewportChange);
       }
     }
   }, [isMobile]);
@@ -199,81 +210,86 @@ Type "Yes" to get started with your personalized coaching session.`,
 
 
   return (
-    <div className="h-screen bg-gradient-hero flex flex-col overflow-hidden relative">
-      {/* Header */}
-      <div className="border-b border-border/50 bg-card/95 backdrop-blur-sm relative z-30">
+    <div 
+      className="bg-gradient-hero flex flex-col relative overflow-hidden"
+      style={{ 
+        height: isMobile ? `${viewportHeight}px` : '100vh',
+        maxHeight: isMobile ? `${viewportHeight}px` : '100vh'
+      }}
+    >
+      {/* Header - Fixed */}
+      <div className="flex-none border-b border-border/50 bg-card/98 backdrop-blur-sm relative z-20">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5">
-                <MessageCircle className="h-6 w-6 text-primary" />
+                <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl font-semibold">
+                <h1 className="text-base sm:text-lg font-semibold leading-tight">
                   {pathwayTitles[pathwayStage as keyof typeof pathwayTitles]}
                 </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Your personal business strategy session
+                <p className="text-xs text-muted-foreground">
+                  Your AI business coach
                 </p>
               </div>
             </div>
             <Button 
               variant="outline" 
               onClick={onRestart}
-              className="hover:shadow-gold transition-all duration-300 text-xs sm:text-sm px-2 sm:px-4"
+              size="sm"
+              className="hover:shadow-gold transition-all duration-300 text-xs px-2 sm:px-3"
             >
-              <RotateCcw className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">New Pathway</span>
-              <span className="sm:hidden">New</span>
+              <RotateCcw className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">New</span>
+              <span className="sm:hidden">↻</span>
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Messages Container */}
+      {/* Messages Container - Scrollable */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto relative"
-        style={{ 
-          paddingBottom: isMobile ? '120px' : '80px',
-          height: isMobile && keyboardHeight > 0 
-            ? `calc(100vh - 140px - ${keyboardHeight}px)` 
-            : 'auto'
+        className="flex-1 overflow-y-auto overflow-x-hidden relative"
+        style={{
+          paddingBottom: '20px',
+          scrollBehavior: 'smooth'
         }}
       >
-        <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
-          <div className="space-y-4 sm:space-y-6">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4">
+          <div className="space-y-3 sm:space-y-4">
             {messages.map((message, index) => (
               <Card 
                 key={index}
                 className={`
-                  max-w-3xl transition-all duration-300 animate-fade-in
+                  max-w-[85%] sm:max-w-3xl transition-all duration-200 animate-fade-in
                   ${message.role === 'assistant' 
-                    ? 'mr-auto bg-card border-border/50' 
-                    : 'ml-auto bg-primary/10 border-primary/20'
+                    ? 'mr-auto bg-card/95 border-border/30' 
+                    : 'ml-auto bg-primary/15 border-primary/30'
                   }
                 `}
               >
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex items-start gap-2 sm:gap-3">
+                <CardContent className="p-3">
+                  <div className="flex items-start gap-2">
                     <div className={`
-                      w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium flex-shrink-0
+                      w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0
                       ${message.role === 'assistant' 
                         ? 'bg-gradient-primary text-primary-foreground' 
                         : 'bg-secondary text-secondary-foreground'
                       }
                     `}>
-                      {message.role === 'assistant' ? 'AI' : 'You'}
+                      {message.role === 'assistant' ? 'AI' : 'U'}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="prose prose-sm max-w-none text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
                         <ReactMarkdown
                           components={{
-                            h1: ({ children }) => <h1 className="text-base sm:text-lg font-bold text-primary mb-2 sm:mb-3">{children}</h1>,
-                            h2: ({ children }) => <h2 className="text-sm sm:text-base font-semibold text-primary mb-1 sm:mb-2 mt-3 sm:mt-4">{children}</h2>,
-                            h3: ({ children }) => <h3 className="text-sm font-semibold text-primary mb-1 sm:mb-2 mt-2 sm:mt-3">{children}</h3>,
-                            hr: () => <hr className="border-border my-3 sm:my-4" />,
-                            p: ({ children }) => <p className="mb-1 sm:mb-2 last:mb-0 text-sm sm:text-base">{children}</p>,
+                            h1: ({ children }) => <h1 className="text-sm sm:text-base font-bold text-primary mb-2">{children}</h1>,
+                            h2: ({ children }) => <h2 className="text-sm font-semibold text-primary mb-1 mt-2">{children}</h2>,
+                            h3: ({ children }) => <h3 className="text-sm font-semibold text-primary mb-1 mt-2">{children}</h3>,
+                            hr: () => <hr className="border-border my-2" />,
+                            p: ({ children }) => <p className="mb-1 last:mb-0 text-sm leading-relaxed">{children}</p>,
                             strong: ({ children }) => <strong className="font-semibold text-primary">{children}</strong>,
                             em: ({ children }) => <em className="italic text-muted-foreground">{children}</em>,
                           }}
@@ -288,14 +304,14 @@ Type "Yes" to get started with your personalized coaching session.`,
             ))}
 
             {isLoading && (
-              <Card className="max-w-3xl mr-auto bg-card border-border/50">
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-primary flex items-center justify-center text-xs sm:text-sm font-medium text-primary-foreground flex-shrink-0">
+              <Card className="max-w-[85%] sm:max-w-3xl mr-auto bg-card/95 border-border/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-primary flex items-center justify-center text-xs font-medium text-primary-foreground flex-shrink-0">
                       AI
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                      <Loader2 className="h-3 w-3 animate-spin" />
                       <span className="text-sm">Thinking...</span>
                     </div>
                   </div>
@@ -303,45 +319,41 @@ Type "Yes" to get started with your personalized coaching session.`,
               </Card>
             )}
 
-            <div ref={messagesEndRef} className="h-4" />
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} className="h-1 w-1" />
           </div>
         </div>
       </div>
 
-      {/* Fixed Input at Bottom */}
-      <div 
-        className="fixed bottom-0 left-0 right-0 border-t border-border/50 bg-card/98 backdrop-blur-sm z-40"
-        style={{
-          transform: isMobile && keyboardHeight > 0 
-            ? `translateY(-${keyboardHeight}px)` 
-            : 'translateY(0)',
-          transition: 'transform 0.3s ease-out'
-        }}
-      >
-        <div className="max-w-4xl mx-auto px-4 py-3">
-          <div className="flex gap-2 sm:gap-3">
+      {/* Input Bar - Fixed at Bottom */}
+      <div className="flex-none border-t border-border/50 bg-card/98 backdrop-blur-sm relative z-30">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
+          <div className="flex gap-2">
             <Input
               ref={inputRef}
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               onFocus={() => {
-                // Ensure we scroll to bottom when focusing input
-                setTimeout(scrollToBottom, 300);
+                // Small delay to ensure keyboard is fully open
+                setTimeout(() => {
+                  scrollToBottomImmediate();
+                }, 200);
               }}
               placeholder="Type your message..."
-              className="flex-1 transition-all duration-300 focus:ring-primary/50 text-sm sm:text-base"
+              className="flex-1 text-sm border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50"
               disabled={isLoading}
             />
             <Button 
               onClick={() => sendMessage()}
               disabled={!currentMessage.trim() || isLoading}
-              className="bg-gradient-primary hover:shadow-gold transition-all duration-300 px-3 sm:px-4"
+              size="sm"
+              className="bg-gradient-primary hover:shadow-gold transition-all duration-300 px-3"
             >
               {isLoading ? (
-                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Send className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Send className="h-4 w-4" />
               )}
             </Button>
           </div>
