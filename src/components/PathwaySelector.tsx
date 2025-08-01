@@ -52,9 +52,9 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
 
   return (
     <div className="h-screen bg-gradient-hero flex flex-col p-4 sm:p-6 lg:p-8 overflow-hidden">
-      <div className="max-w-6xl w-full mx-auto flex flex-col h-full space-y-2 lg:space-y-3">
+      <div className="max-w-6xl w-full mx-auto flex flex-col h-full space-y-1">
         {/* Header */}
-        <div className="text-center space-y-1 lg:space-y-2">
+        <div className="text-center space-y-1">
           {/* Logo */}
           <div className="flex justify-center">
             <img src="/lovable-uploads/134b4b6c-5e9d-47a6-ac2c-0fe90ce02fbf.png" alt="Goshen Digital Launch" className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40" />
@@ -66,7 +66,7 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
         </div>
 
         {/* Pathway Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 max-w-4xl mx-auto flex-1 content-center -mt-2 lg:-mt-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 max-w-4xl mx-auto flex-1 content-center -mt-4">
           {pathways.map((pathway, index) => {
             const Icon = pathway.icon;
             const isSelected = selectedPathway === pathway.id;
@@ -139,7 +139,7 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-xs lg:text-sm text-muted-foreground space-y-1 -mt-2 lg:-mt-3">
+        <div className="text-center text-xs lg:text-sm text-muted-foreground space-y-1 -mt-4">
           <p className="max-w-xl mx-auto">Each pathway includes personalized AI coaching tailored to your specific needs.</p>
           <div className="w-16 h-0.5 bg-gradient-primary mx-auto rounded-full opacity-50" />
         </div>
