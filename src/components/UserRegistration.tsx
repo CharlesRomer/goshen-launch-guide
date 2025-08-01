@@ -87,10 +87,6 @@ export const UserRegistration = ({ pathwayStage, onComplete, onBack }: UserRegis
         throw sessionError;
       }
 
-      toast({
-        title: "Welcome to Goshen Digital Launch!",
-        description: `Your ${pathwayTitles[pathwayStage as keyof typeof pathwayTitles]} session is starting.`,
-      });
 
       onComplete(profileId, session.id);
 

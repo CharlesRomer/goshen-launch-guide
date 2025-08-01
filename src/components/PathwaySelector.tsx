@@ -66,18 +66,6 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-hero flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto">
-      {/* Welcome Banner */}
-      {showWelcome && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-primary text-primary-foreground p-3 text-center shadow-lg animate-fade-in">
-          <p className="text-sm font-medium">Welcome to Goshen Digital Launch</p>
-          <button 
-            onClick={() => setShowWelcome(false)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/80 hover:text-primary-foreground"
-          >
-            ×
-          </button>
-        </div>
-      )}
       
       <div className="max-w-6xl w-full mx-auto flex flex-col space-y-6 pb-32">
         {/* Header */}
