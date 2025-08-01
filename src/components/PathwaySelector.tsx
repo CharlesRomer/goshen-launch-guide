@@ -57,7 +57,7 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
         <div className="text-center space-y-2 lg:space-y-3">
           {/* Logo */}
           <div className="flex justify-center mb-2">
-            <img src="/lovable-uploads/134b4b6c-5e9d-47a6-ac2c-0fe90ce02fbf.png" alt="Goshen Digital Launch" className="w-96 h-96 sm:w-[448px] sm:h-[448px] lg:w-[512px] lg:h-[512px]" />
+            <img src="/lovable-uploads/134b4b6c-5e9d-47a6-ac2c-0fe90ce02fbf.png" alt="Goshen Digital Launch" className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40" />
           </div>
           <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Your next step toward building a profitable digital product starts here. 
