@@ -265,3 +265,39 @@ All colors MUST be HSL.
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+
+/* Global smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Smooth transitions for all interactive elements */
+button, input, textarea, select {
+  transition: all 0.2s ease-out;
+}
+
+/* Z-index management */
+.z-header { z-index: 50; }
+.z-modal { z-index: 100; }
+.z-toast { z-index: 150; }
+.z-tooltip { z-index: 200; }
+
+/* Enhanced mobile input styling */
+input[type="text"], input[type="email"], textarea {
+  font-size: 16px; /* Prevents zoom on iOS */
+  -webkit-appearance: none;
+  border-radius: 8px;
+}
+
+/* Smooth page transitions */
+.page-transition {
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+/* Enhanced hover states for non-touch devices */
+@media (hover: hover) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+}

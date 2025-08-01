@@ -211,7 +211,7 @@ Type "Yes" to get started with your personalized coaching session.`,
 
   return (
     <div 
-      className="bg-gradient-hero flex flex-col relative overflow-hidden"
+      className="bg-gradient-hero flex flex-col relative overflow-hidden transition-all duration-300"
       style={{ 
         height: isMobile ? `${viewportHeight}px` : '100vh',
         maxHeight: isMobile ? `${viewportHeight}px` : '100vh'
@@ -238,11 +238,10 @@ Type "Yes" to get started with your personalized coaching session.`,
               variant="outline" 
               onClick={onRestart}
               size="sm"
-              className="hover:shadow-gold transition-all duration-300 text-xs px-2 sm:px-3"
+              className="hover:shadow-gold transition-all duration-300 text-xs px-3 min-h-[44px]"
             >
-              <RotateCcw className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">New</span>
-              <span className="sm:hidden">↻</span>
+              <RotateCcw className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">New Session</span>
             </Button>
           </div>
         </div>
@@ -251,10 +250,9 @@ Type "Yes" to get started with your personalized coaching session.`,
       {/* Messages Container - Scrollable */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden relative"
+        className="flex-1 overflow-y-auto overflow-x-hidden relative scroll-smooth"
         style={{
-          paddingBottom: '20px',
-          scrollBehavior: 'smooth'
+          paddingBottom: '20px'
         }}
       >
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4">
@@ -263,10 +261,10 @@ Type "Yes" to get started with your personalized coaching session.`,
               <Card 
                 key={index}
                 className={`
-                  max-w-[85%] sm:max-w-3xl transition-all duration-200 animate-fade-in
+                  max-w-[85%] sm:max-w-3xl transition-all duration-300 ease-out animate-fade-in transform hover:scale-[1.02]
                   ${message.role === 'assistant' 
-                    ? 'mr-auto bg-card/95 border-border/30' 
-                    : 'ml-auto bg-primary/15 border-primary/30'
+                    ? 'mr-auto bg-card/95 border-border/30 hover:bg-card' 
+                    : 'ml-auto bg-primary/15 border-primary/30 hover:bg-primary/20'
                   }
                 `}
               >
@@ -340,9 +338,9 @@ Type "Yes" to get started with your personalized coaching session.`,
                   scrollToBottomImmediate();
                 }, 200);
               }}
-          placeholder="Type your message..."
-          className="flex-1 text-sm border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50 min-h-[44px]"
-          disabled={isLoading}
+              placeholder="Type your message..."
+              className="flex-1 text-base border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50 min-h-[44px] transition-all duration-200"
+              disabled={isLoading}
             />
             <Button 
               onClick={() => sendMessage()}

@@ -33,23 +33,29 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <div className="flex-1">
         {appState === 'selector' && (
-          <PathwaySelector onSelectPathway={handlePathwaySelect} />
+          <div className="animate-fade-in">
+            <PathwaySelector onSelectPathway={handlePathwaySelect} />
+          </div>
         )}
 
         {appState === 'registration' && (
-          <UserRegistration 
-            pathwayStage={selectedPathway}
-            onComplete={handleRegistrationComplete}
-            onBack={() => setAppState('selector')}
-          />
+          <div className="animate-fade-in">
+            <UserRegistration 
+              pathwayStage={selectedPathway}
+              onComplete={handleRegistrationComplete}
+              onBack={() => setAppState('selector')}
+            />
+          </div>
         )}
 
         {appState === 'chat' && (
-          <CoachingChat 
-            sessionId={sessionId}
-            pathwayStage={selectedPathway}
-            onRestart={handleRestart}
-          />
+          <div className="animate-fade-in">
+            <CoachingChat 
+              sessionId={sessionId}
+              pathwayStage={selectedPathway}
+              onRestart={handleRestart}
+            />
+          </div>
         )}
       </div>
       
