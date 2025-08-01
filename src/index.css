@@ -3,75 +3,79 @@
 @tailwind utilities;
 
 :root {
-  /* Dark mode color palette with deep gold accents */
-  --background: 220 13% 8%;
-  --foreground: 210 40% 98%;
+  /* Premium dark theme with gold accents */
+  --background: 222 13% 5%;
+  --foreground: 60 30% 96%;
   
-  --card: 220 13% 11%;
-  --card-foreground: 210 40% 98%;
+  --card: 222 13% 8%;
+  --card-foreground: 60 30% 96%;
   
-  --popover: 220 13% 11%;
-  --popover-foreground: 210 40% 98%;
+  --popover: 222 13% 8%;
+  --popover-foreground: 60 30% 96%;
   
-  --primary: 43 96% 56%;  /* Deep gold */
-  --primary-foreground: 220 13% 8%;
+  --primary: 45 93% 58%;  /* Premium gold */
+  --primary-foreground: 222 13% 5%;
   
-  --secondary: 220 13% 15%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 222 13% 12%;
+  --secondary-foreground: 60 30% 96%;
   
-  --muted: 220 13% 15%;
-  --muted-foreground: 215 20.2% 65.1%;
+  --muted: 222 13% 12%;
+  --muted-foreground: 60 9% 60%;
   
-  --accent: 43 96% 56%;  /* Deep gold accent */
-  --accent-foreground: 220 13% 8%;
+  --accent: 45 93% 58%;  /* Premium gold accent */
+  --accent-foreground: 222 13% 5%;
   
   --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 60 30% 96%;
   
-  --border: 220 13% 18%;
-  --input: 220 13% 18%;
-  --ring: 43 96% 56%;  /* Deep gold ring */
+  --border: 222 13% 15%;
+  --input: 222 13% 15%;
+  --ring: 45 93% 58%;  /* Premium gold ring */
   
-  --radius: 0.75rem;
+  --radius: 1rem;
   
-  /* Custom design tokens */
-  --gradient-primary: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 92% 50%));
-  --gradient-hero: linear-gradient(180deg, hsl(220 13% 8%), hsl(220 13% 11%));
-  --shadow-gold: 0 10px 30px -10px hsl(43 96% 56% / 0.3);
-  --shadow-elegant: 0 25px 50px -12px hsl(220 13% 4% / 0.8);
+  /* Premium design tokens */
+  --gradient-primary: linear-gradient(135deg, hsl(45 93% 58%), hsl(38 100% 55%));
+  --gradient-hero: linear-gradient(135deg, hsl(222 13% 5%) 0%, hsl(222 13% 8%) 50%, hsl(222 13% 5%) 100%);
+  --gradient-card: linear-gradient(135deg, hsl(222 13% 8%) 0%, hsl(222 13% 10%) 100%);
+  --gradient-border: linear-gradient(135deg, hsl(45 93% 58% / 0.3), hsl(38 100% 55% / 0.1));
+  --shadow-gold: 0 20px 40px -12px hsl(45 93% 58% / 0.4);
+  --shadow-elegant: 0 25px 50px -12px hsl(222 13% 3% / 0.9);
+  --shadow-premium: 0 10px 30px -5px hsl(45 93% 58% / 0.2);
   
   /* Animation curves */
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .dark {
-  --background: 220 13% 8%;
-  --foreground: 210 40% 98%;
+  --background: 222 13% 5%;
+  --foreground: 60 30% 96%;
   
-  --card: 220 13% 11%;
-  --card-foreground: 210 40% 98%;
+  --card: 222 13% 8%;
+  --card-foreground: 60 30% 96%;
   
-  --popover: 220 13% 11%;
-  --popover-foreground: 210 40% 98%;
+  --popover: 222 13% 8%;
+  --popover-foreground: 60 30% 96%;
   
-  --primary: 43 96% 56%;
-  --primary-foreground: 220 13% 8%;
+  --primary: 45 93% 58%;
+  --primary-foreground: 222 13% 5%;
   
-  --secondary: 220 13% 15%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 222 13% 12%;
+  --secondary-foreground: 60 30% 96%;
   
-  --muted: 220 13% 15%;
-  --muted-foreground: 215 20.2% 65.1%;
+  --muted: 222 13% 12%;
+  --muted-foreground: 60 9% 60%;
   
-  --accent: 43 96% 56%;
-  --accent-foreground: 220 13% 8%;
+  --accent: 45 93% 58%;
+  --accent-foreground: 222 13% 5%;
   
   --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 60 30% 96%;
   
-  --border: 220 13% 18%;
-  --input: 220 13% 18%;
-  --ring: 43 96% 56%;
+  --border: 222 13% 15%;
+  --input: 222 13% 15%;
+  --ring: 45 93% 58%;
 }
 
 * {
