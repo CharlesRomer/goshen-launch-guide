@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Lightbulb, Search, TrendingUp, Rocket } from "lucide-react";
@@ -41,6 +41,20 @@ const pathways = [
 
 export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
   const [selectedPathway, setSelectedPathway] = useState<string | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem('goshen-welcome-seen');
+    if (!hasSeenWelcome) {
+      setShowWelcome(true);
+      localStorage.setItem('goshen-welcome-seen', 'true');
+      
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => {
+        setShowWelcome(false);
+      }, 3000);
+    }
+  }, []);
 
   const handleSelect = (pathwayId: string) => {
     setSelectedPathway(pathwayId);
@@ -52,7 +66,20 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-hero flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto">
-      <div className="max-w-6xl w-full mx-auto flex flex-col space-y-6 pb-8">
+      {/* Welcome Banner */}
+      {showWelcome && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-primary text-primary-foreground p-3 text-center shadow-lg animate-fade-in">
+          <p className="text-sm font-medium">Welcome to Goshen Digital Launch</p>
+          <button 
+            onClick={() => setShowWelcome(false)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/80 hover:text-primary-foreground"
+          >
+            ×
+          </button>
+        </div>
+      )}
+      
+      <div className="max-w-6xl w-full mx-auto flex flex-col space-y-6 pb-32">
         {/* Header */}
         <div className="text-center space-y-4 pt-4">
           {/* Logo */}
@@ -79,9 +106,9 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
                   group relative overflow-hidden rounded-xl bg-gradient-card 
                   border border-border/50 backdrop-blur-sm
                   transition-all duration-200 ease-out
-                  touch-manipulation active:scale-[0.98]
+                  touch-manipulation active:scale-[0.98] tap-highlight-transparent
                   ${isSelected ? 'ring-2 ring-primary shadow-gold scale-[1.005] border-primary/50' : ''}
-                  cursor-pointer
+                  cursor-pointer min-h-[44px]
                 `}
                 onClick={() => handleSelect(pathway.id)}
               >

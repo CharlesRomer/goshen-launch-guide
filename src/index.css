@@ -229,6 +229,27 @@ All colors MUST be HSL.
   }
 }
 
+/* Remove tap highlights and improve mobile interaction */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Ensure minimum tap target size */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 /* Animation keyframes */
 @keyframes fade-in {
   from {

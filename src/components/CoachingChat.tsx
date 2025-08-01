@@ -326,7 +326,7 @@ Type "Yes" to get started with your personalized coaching session.`,
       </div>
 
       {/* Input Bar - Fixed at Bottom */}
-      <div className="flex-none border-t border-border/50 bg-card/98 backdrop-blur-sm relative z-30">
+      <div className="flex-none border-t border-border/50 bg-card/98 backdrop-blur-sm relative z-50">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
           <div className="flex gap-2">
             <Input
@@ -340,15 +340,15 @@ Type "Yes" to get started with your personalized coaching session.`,
                   scrollToBottomImmediate();
                 }, 200);
               }}
-              placeholder="Type your message..."
-              className="flex-1 text-sm border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50"
-              disabled={isLoading}
+          placeholder="Type your message..."
+          className="flex-1 text-sm border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50 min-h-[44px]"
+          disabled={isLoading}
             />
             <Button 
               onClick={() => sendMessage()}
               disabled={!currentMessage.trim() || isLoading}
               size="sm"
-              className="bg-gradient-primary hover:shadow-gold transition-all duration-300 px-3"
+              className="bg-gradient-primary hover:shadow-gold transition-all duration-300 px-3 min-h-[44px] min-w-[44px]"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
