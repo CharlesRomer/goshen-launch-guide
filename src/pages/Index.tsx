@@ -40,6 +40,7 @@ const Index = () => {
           <UserRegistration 
             pathwayStage={selectedPathway}
             onComplete={handleRegistrationComplete}
+            onBack={() => setAppState('selector')}
           />
         )}
 

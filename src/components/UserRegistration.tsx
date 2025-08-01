@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, User } from "lucide-react";
+import { Loader2, User, ArrowLeft } from "lucide-react";
 
 interface UserRegistrationProps {
   pathwayStage: string;
   onComplete: (profileId: string, sessionId: string) => void;
+  onBack: () => void;
 }
 
 const pathwayTitles = {
@@ -19,7 +20,7 @@ const pathwayTitles = {
   'scaling': "Scaling Strategy"
 };
 
-export const UserRegistration = ({ pathwayStage, onComplete }: UserRegistrationProps) => {
+export const UserRegistration = ({ pathwayStage, onComplete, onBack }: UserRegistrationProps) => {
   const [formData, setFormData] = useState({
     name: "",
     email: ""
@@ -106,7 +107,17 @@ export const UserRegistration = ({ pathwayStage, onComplete }: UserRegistrationP
   };
 
   return (
-    <div className="h-screen bg-gradient-hero flex items-center justify-center p-4 overflow-hidden">
+    <div className="h-screen bg-gradient-hero flex items-center justify-center p-4 overflow-hidden relative">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        onClick={onBack}
+        className="absolute top-4 left-4 z-10 hover:bg-white/10"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
+
       <Card className="w-full max-w-md shadow-elegant border-border/50">
         <CardHeader className="text-center space-y-4">
           <div className="mx-auto p-4 rounded-full bg-gradient-to-br from-primary/20 to-primary/5">
