@@ -159,7 +159,7 @@ Type "Yes" to get started with your personalized coaching session.`,
 
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex flex-col">
+    <div className="h-screen bg-gradient-hero flex flex-col overflow-hidden">
       {/* Header */}
       <div className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-6">

@@ -106,7 +106,7 @@ export const UserRegistration = ({ pathwayStage, onComplete }: UserRegistrationP
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+    <div className="h-screen bg-gradient-hero flex items-center justify-center p-4 overflow-hidden">
       <Card className="w-full max-w-md shadow-elegant border-border/50">
         <CardHeader className="text-center space-y-4">
           <div className="mx-auto p-4 rounded-full bg-gradient-to-br from-primary/20 to-primary/5">

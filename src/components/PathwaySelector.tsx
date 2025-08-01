@@ -51,8 +51,8 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
   };
 
   return (
-    <div className="h-screen bg-gradient-hero flex flex-col justify-center p-4 sm:p-6 lg:p-8 overflow-hidden">
-      <div className="max-w-6xl w-full mx-auto flex flex-col h-full justify-center space-y-4 lg:space-y-6">
+    <div className="h-screen bg-gradient-hero flex flex-col p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <div className="max-w-6xl w-full mx-auto flex flex-col h-full space-y-4 lg:space-y-6">
         {/* Header */}
         <div className="text-center space-y-2 lg:space-y-3">
           {/* Logo */}
@@ -66,7 +66,7 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
         </div>
 
         {/* Pathway Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 max-w-4xl mx-auto flex-1 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 max-w-4xl mx-auto flex-1 content-center">
           {pathways.map((pathway, index) => {
             const Icon = pathway.icon;
             const isSelected = selectedPathway === pathway.id;
