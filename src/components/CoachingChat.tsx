@@ -33,14 +33,18 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false); // Start hidden
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
   };
 
   useEffect(() => {
@@ -52,25 +56,34 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   }, [sessionId]);
 
   useEffect(() => {
-    // Auto-hide welcome banner after 3 seconds
-    if (showWelcomeBanner) {
-      const timer = setTimeout(() => {
-        setShowWelcomeBanner(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showWelcomeBanner]);
-
-  useEffect(() => {
-    // Handle mobile keyboard behavior
+    // Handle mobile keyboard and viewport changes
     if (isMobile) {
       const handleResize = () => {
-        // Small delay to ensure DOM has updated
-        setTimeout(scrollToBottom, 100);
+        const visualViewport = window.visualViewport;
+        if (visualViewport) {
+          const keyboardHeight = window.innerHeight - visualViewport.height;
+          setKeyboardHeight(keyboardHeight);
+          
+          // Auto-scroll to bottom when keyboard opens/closes
+          setTimeout(() => {
+            scrollToBottom();
+          }, 100);
+        }
       };
       
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
+      const handleViewportChange = () => {
+        handleResize();
+      };
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', handleViewportChange);
+        return () => {
+          window.visualViewport?.removeEventListener('resize', handleViewportChange);
+        };
+      } else {
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }
     }
   }, [isMobile]);
 
@@ -187,33 +200,8 @@ Type "Yes" to get started with your personalized coaching session.`,
 
   return (
     <div className="h-screen bg-gradient-hero flex flex-col overflow-hidden relative">
-      {/* Welcome Banner */}
-      {showWelcomeBanner && (
-        <div className="relative bg-gradient-primary text-primary-foreground py-3 px-4 shadow-lg animate-in slide-in-from-top-2 duration-500">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-1.5 rounded-lg bg-white/20">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="font-semibold">Welcome to Goshen Digital Launch</h2>
-                <p className="text-sm opacity-90">Your AI business coach is ready to help</p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowWelcomeBanner(false)}
-              className="text-white hover:bg-white/20 p-1"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
-      <div className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
+      <div className="border-b border-border/50 bg-card/95 backdrop-blur-sm relative z-30">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -242,8 +230,17 @@ Type "Yes" to get started with your personalized coaching session.`,
         </div>
       </div>
 
-      {/* Messages Container with proper mobile spacing */}
-      <div className="flex-1 overflow-y-auto" style={{ paddingBottom: isMobile ? '80px' : '0' }}>
+      {/* Messages Container */}
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto relative"
+        style={{ 
+          paddingBottom: isMobile ? '120px' : '80px',
+          height: isMobile && keyboardHeight > 0 
+            ? `calc(100vh - 140px - ${keyboardHeight}px)` 
+            : 'auto'
+        }}
+      >
         <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
           <div className="space-y-4 sm:space-y-6">
             {messages.map((message, index) => (
@@ -306,19 +303,19 @@ Type "Yes" to get started with your personalized coaching session.`,
               </Card>
             )}
 
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} className="h-4" />
           </div>
         </div>
       </div>
 
-      {/* Fixed Input at Bottom for Mobile */}
+      {/* Fixed Input at Bottom */}
       <div 
-        className={`
-          border-t border-border/50 bg-card/95 backdrop-blur-sm
-          ${isMobile ? 'fixed bottom-0 left-0 right-0 safe-area-pb' : ''}
-        `}
+        className="fixed bottom-0 left-0 right-0 border-t border-border/50 bg-card/98 backdrop-blur-sm z-40"
         style={{
-          paddingBottom: isMobile ? 'env(safe-area-inset-bottom)' : undefined
+          transform: isMobile && keyboardHeight > 0 
+            ? `translateY(-${keyboardHeight}px)` 
+            : 'translateY(0)',
+          transition: 'transform 0.3s ease-out'
         }}
       >
         <div className="max-w-4xl mx-auto px-4 py-3">
@@ -328,6 +325,10 @@ Type "Yes" to get started with your personalized coaching session.`,
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyPress={handleKeyPress}
+              onFocus={() => {
+                // Ensure we scroll to bottom when focusing input
+                setTimeout(scrollToBottom, 300);
+              }}
               placeholder="Type your message..."
               className="flex-1 transition-all duration-300 focus:ring-primary/50 text-sm sm:text-base"
               disabled={isLoading}

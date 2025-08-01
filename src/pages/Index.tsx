@@ -53,13 +53,15 @@ const Index = () => {
         )}
       </div>
       
-      {/* Fine Print Disclaimer */}
-      <footer className="py-4 px-6 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <p className="text-xs text-muted-foreground text-center">
-          Your chats are saved for training purposes to improve our AI coaching services. 
-          By using this service, you consent to this data usage.
-        </p>
-      </footer>
+      {/* Fine Print Disclaimer - Only show when not in chat */}
+      {appState !== 'chat' && (
+        <footer className="py-4 px-6 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative z-10">
+          <p className="text-xs text-muted-foreground text-center">
+            Your chats are saved for training purposes to improve our AI coaching services. 
+            By using this service, you consent to this data usage.
+          </p>
+        </footer>
+      )}
     </div>
   );
 };
