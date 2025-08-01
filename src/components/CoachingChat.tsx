@@ -223,7 +223,7 @@ Type "Yes" to get started with your personalized coaching session.`,
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5">
-                <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                <MessageCircle className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <h1 className="text-base sm:text-lg font-semibold leading-tight">
