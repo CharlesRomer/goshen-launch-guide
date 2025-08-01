@@ -162,7 +162,7 @@ Type "Yes" to get started with your personalized coaching session.`,
     <div className="h-screen bg-gradient-hero flex flex-col overflow-hidden">
       {/* Header */}
       <div className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5">
@@ -261,7 +261,7 @@ Type "Yes" to get started with your personalized coaching session.`,
 
       {/* Input */}
       <div className="border-t border-border/50 bg-card/50 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-3">
             <Input
               value={currentMessage}

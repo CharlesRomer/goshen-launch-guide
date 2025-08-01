@@ -52,12 +52,12 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
 
   return (
     <div className="h-screen bg-gradient-hero flex flex-col p-4 sm:p-6 lg:p-8 overflow-hidden">
-      <div className="max-w-6xl w-full mx-auto flex flex-col h-full space-y-4 lg:space-y-6">
+      <div className="max-w-6xl w-full mx-auto flex flex-col h-full space-y-2 lg:space-y-3">
         {/* Header */}
-        <div className="text-center space-y-2 lg:space-y-3">
+        <div className="text-center space-y-1 lg:space-y-2">
           {/* Logo */}
-          <div className="flex justify-center mb-2">
-            <img src="/lovable-uploads/134b4b6c-5e9d-47a6-ac2c-0fe90ce02fbf.png" alt="Goshen Digital Launch" className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40" />
+          <div className="flex justify-center">
+            <img src="/lovable-uploads/134b4b6c-5e9d-47a6-ac2c-0fe90ce02fbf.png" alt="Goshen Digital Launch" className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16" />
           </div>
           <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Your next step toward building a profitable digital product starts here. 
