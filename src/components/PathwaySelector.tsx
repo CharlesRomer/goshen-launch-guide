@@ -15,6 +15,7 @@ const pathways = [
     description: "Discover your calling through guided exploration of your gifts and passions",
     icon: Lightbulb,
     gradient: "from-primary/20 to-primary/5",
+    displayNumber: 1,
   },
   {
     id: 'idea_validation',
@@ -22,13 +23,7 @@ const pathways = [
     description: "Validate your concept using proven frameworks for clarity and market fit",
     icon: Search,
     gradient: "from-accent/20 to-accent/5",
-  },
-  {
-    id: 'improvement',
-    title: "I have an idea and it works — I just want to make it better",
-    description: "Elevate your working offer with strategic enhancements and positioning",
-    icon: TrendingUp,
-    gradient: "from-primary/20 to-primary/5",
+    displayNumber: 2,
   },
   {
     id: 'scaling',
@@ -36,6 +31,7 @@ const pathways = [
     description: "Implement proven systems for traffic, automation, and revenue growth",
     icon: Rocket,
     gradient: "from-accent/20 to-accent/5",
+    displayNumber: 4,
   },
 ];
 
@@ -85,7 +81,7 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
           {pathways.map((pathway, index) => {
             const Icon = pathway.icon;
             const isSelected = selectedPathway === pathway.id;
-            const pathNumber = index + 1;
+            const pathNumber = pathway.displayNumber ?? index + 1;
             
             return (
               <div
