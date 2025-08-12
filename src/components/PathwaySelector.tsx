@@ -31,7 +31,7 @@ const pathways = [
     description: "Implement proven systems for traffic, automation, and revenue growth",
     icon: Rocket,
     gradient: "from-accent/20 to-accent/5",
-    displayNumber: 4,
+    displayNumber: 3,
   },
 ];
 
@@ -93,6 +93,7 @@ export const PathwaySelector = ({ onSelectPathway }: PathwaySelectorProps) => {
                   touch-manipulation active:scale-[0.98] tap-highlight-transparent
                   ${isSelected ? 'ring-2 ring-primary shadow-gold scale-[1.005] border-primary/50' : ''}
                   cursor-pointer min-h-[44px]
+                  ${index === 2 ? 'md:col-span-2 md:max-w-md md:mx-auto' : ''}
                 `}
                 onClick={() => handleSelect(pathway.id)}
               >

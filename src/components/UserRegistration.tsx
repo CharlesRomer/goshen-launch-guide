@@ -15,8 +15,7 @@ interface UserRegistrationProps {
 
 const pathwayTitles = {
   'no_idea': "Idea Discovery",
-  'idea_validation': "Idea Validation", 
-  'improvement': "Offer Enhancement",
+  'idea_validation': "Idea Validation",
   'scaling': "Scaling Strategy"
 };
 

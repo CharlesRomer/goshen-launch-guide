@@ -22,8 +22,7 @@ interface CoachingChatProps {
 
 const pathwayTitles = {
   'no_idea': "Idea Discovery Coach",
-  'idea_validation': "Idea Validation Coach", 
-  'improvement': "Offer Enhancement Coach",
+  'idea_validation': "Idea Validation Coach",
   'scaling': "Scaling Strategy Coach"
 };
 
