@@ -42,34 +42,19 @@ export const UserRegistration = ({ pathwayStage, onComplete, onBack }: UserRegis
     setIsLoading(true);
 
     try {
-      // Check if profile already exists
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', formData.email.toLowerCase().trim())
-        .maybeSingle();
+      // Get or create profile securely via Edge Function (no public SELECT on profiles)
+      const { data: fnData, error: fnError } = await supabase.functions.invoke('get-or-create-profile', {
+        body: {
+          name: formData.name.trim(),
+          email: formData.email.toLowerCase().trim(),
+        },
+      });
 
-      let profileId: string;
-
-      if (existingProfile) {
-        profileId = existingProfile.id;
-      } else {
-        // Create new profile
-        const { data: newProfile, error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            name: formData.name.trim(),
-            email: formData.email.toLowerCase().trim(),
-          })
-          .select()
-          .single();
-
-        if (profileError) {
-          throw profileError;
-        }
-
-        profileId = newProfile.id;
+      if (fnError) {
+        throw fnError;
       }
+
+      const profileId: string = fnData.profileId;
 
       // Create new session
       const { data: session, error: sessionError } = await supabase
