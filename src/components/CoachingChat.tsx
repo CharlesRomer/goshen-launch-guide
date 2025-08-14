@@ -32,63 +32,113 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [composerHeight, setComposerHeight] = useState(0);
+  const [composerBottomOffset, setComposerBottomOffset] = useState(0);
+  const [isNearBottom, setIsNearBottom] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  const scrollToBottom = () => {
-    if (messagesEndRef.current && !isKeyboardOpen) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+  const updateComposerHeight = () => {
+    if (composerRef.current) {
+      const height = composerRef.current.offsetHeight;
+      setComposerHeight(height);
+      
+      // Set CSS variable for dynamic padding
+      document.documentElement.style.setProperty('--composer-height', `${height}px`);
     }
   };
 
-  const scrollToBottomImmediate = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto", block: "end" });
+  const updateComposerPosition = () => {
+    if (!isMobile) return;
+    
+    const visualViewport = window.visualViewport;
+    if (visualViewport) {
+      const safeAreaBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-inset-bottom') || '0');
+      const dynamicOffset = Math.max(
+        safeAreaBottom,
+        window.innerHeight - visualViewport.height - visualViewport.offsetTop
+      );
+      setComposerBottomOffset(dynamicOffset);
     }
   };
 
+  const checkIfNearBottom = () => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const threshold = 100;
+      setIsNearBottom(scrollTop + clientHeight >= scrollHeight - threshold);
+    }
+  };
+
+  const scrollToBottom = (behavior: 'smooth' | 'auto' = 'smooth') => {
+    if (messagesEndRef.current && isNearBottom) {
+      messagesEndRef.current.scrollIntoView({ behavior, block: "end" });
+    }
+  };
+
+  // Update scroll position when messages change
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isNearBottom]);
 
+  // Load initial data
   useEffect(() => {
     loadInitialData();
   }, [sessionId]);
 
+  // Set up viewport and composer observers
   useEffect(() => {
-    // Mobile viewport and keyboard handling
+    // Initial measurements
+    updateComposerHeight();
+    updateComposerPosition();
+
+    // Set up observers
+    const resizeObserver = new ResizeObserver(() => {
+      updateComposerHeight();
+    });
+
+    if (composerRef.current) {
+      resizeObserver.observe(composerRef.current);
+    }
+
+    // Mobile viewport handling
     if (isMobile) {
       const handleViewportChange = () => {
-        const currentHeight = window.visualViewport?.height || window.innerHeight;
-        const standardHeight = window.screen.height;
-        const heightDifference = standardHeight - currentHeight;
-        
-        // Keyboard is considered open if viewport shrinks significantly
-        const keyboardOpen = heightDifference > 150;
-        
-        setViewportHeight(currentHeight);
-        setIsKeyboardOpen(keyboardOpen);
+        updateComposerPosition();
+        // Auto-scroll if user was near bottom
+        if (isNearBottom) {
+          setTimeout(() => scrollToBottom('auto'), 50);
+        }
       };
 
-      // Initial setup
-      handleViewportChange();
+      const handleOrientationChange = () => {
+        setTimeout(() => {
+          updateComposerHeight();
+          updateComposerPosition();
+          if (isNearBottom) scrollToBottom('auto');
+        }, 100);
+      };
 
       if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', handleViewportChange);
+        window.addEventListener('orientationchange', handleOrientationChange);
+        
         return () => {
           window.visualViewport?.removeEventListener('resize', handleViewportChange);
+          window.removeEventListener('orientationchange', handleOrientationChange);
+          resizeObserver.disconnect();
         };
-      } else {
-        window.addEventListener('resize', handleViewportChange);
-        return () => window.removeEventListener('resize', handleViewportChange);
       }
     }
-  }, [isMobile]);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [isMobile, isNearBottom]);
 
   const loadInitialData = async () => {
     try {
@@ -203,10 +253,11 @@ Type "Yes" to get started with your personalized coaching session.`,
 
   return (
     <div 
-      className="bg-gradient-hero flex flex-col relative overflow-hidden transition-all duration-300"
+      className="bg-gradient-hero flex flex-col relative"
       style={{ 
-        height: isMobile ? `${viewportHeight}px` : 'calc(100vh - 48px)',
-        maxHeight: isMobile ? `${viewportHeight}px` : 'calc(100vh - 48px)'
+        height: isMobile ? '100dvh' : 'calc(100vh - 48px)',
+        maxHeight: isMobile ? '100dvh' : 'calc(100vh - 48px)',
+        overflow: 'hidden'
       }}
     >
       {/* Header - Fixed */}
@@ -242,10 +293,11 @@ Type "Yes" to get started with your personalized coaching session.`,
       {/* Messages Container - Scrollable */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden relative scroll-smooth"
+        className="flex-1 overflow-y-auto overflow-x-hidden relative"
         style={{
-          paddingBottom: '20px'
+          paddingBottom: isMobile ? `calc(var(--composer-height, 80px) + ${composerBottomOffset}px)` : '80px'
         }}
+        onScroll={checkIfNearBottom}
       >
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4">
           <div className="space-y-3 sm:space-y-4">
@@ -316,26 +368,37 @@ Type "Yes" to get started with your personalized coaching session.`,
       </div>
 
       {/* Input Bar - Fixed at Bottom */}
-      <div className="flex-none border-t border-border/50 bg-card/98 backdrop-blur-sm relative z-50">
+      <div 
+        ref={composerRef}
+        className={`
+          border-t border-border/50 bg-card/98 backdrop-blur-sm z-50
+          ${isMobile ? 'fixed left-0 right-0' : 'flex-none relative'}
+        `}
+        style={{
+          bottom: isMobile ? `${composerBottomOffset}px` : 'auto',
+          paddingBottom: isMobile ? 'env(safe-area-inset-bottom)' : '0'
+        }}
+      >
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
           <div className="flex gap-2">
             <Input
               ref={inputRef}
               value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
+              onChange={(e) => {
+                setCurrentMessage(e.target.value);
+                // Update composer height when text changes (for multiline)
+                setTimeout(updateComposerHeight, 0);
+              }}
               onKeyPress={handleKeyPress}
               onFocus={() => {
-                // Only scroll if not already keyboard open to prevent jumping
-                if (!isKeyboardOpen) {
-                  setTimeout(() => {
-                    if (messagesEndRef.current) {
-                      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
-                    }
-                  }, 300);
-                }
+                setTimeout(() => {
+                  if (isNearBottom) {
+                    scrollToBottom('smooth');
+                  }
+                }, 300);
               }}
               placeholder="Type your message..."
-              className="flex-1 text-base border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50 min-h-[44px] transition-all duration-200"
+              className="flex-1 text-base border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50 min-h-[44px] transition-all duration-200 resize-none"
               disabled={isLoading}
             />
             <Button 
