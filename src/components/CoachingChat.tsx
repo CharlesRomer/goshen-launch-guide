@@ -73,11 +73,6 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
         
         setViewportHeight(currentHeight);
         setIsKeyboardOpen(keyboardOpen);
-        
-        // When keyboard opens, immediately scroll to bottom
-        if (keyboardOpen) {
-          setTimeout(scrollToBottomImmediate, 50);
-        }
       };
 
       // Initial setup
@@ -85,10 +80,8 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
 
       if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', handleViewportChange);
-        window.visualViewport.addEventListener('scroll', handleViewportChange);
         return () => {
           window.visualViewport?.removeEventListener('resize', handleViewportChange);
-          window.visualViewport?.removeEventListener('scroll', handleViewportChange);
         };
       } else {
         window.addEventListener('resize', handleViewportChange);
@@ -332,10 +325,14 @@ Type "Yes" to get started with your personalized coaching session.`,
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               onFocus={() => {
-                // Small delay to ensure keyboard is fully open
-                setTimeout(() => {
-                  scrollToBottomImmediate();
-                }, 200);
+                // Only scroll if not already keyboard open to prevent jumping
+                if (!isKeyboardOpen) {
+                  setTimeout(() => {
+                    if (messagesEndRef.current) {
+                      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                    }
+                  }, 300);
+                }
               }}
               placeholder="Type your message..."
               className="flex-1 text-base border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50 min-h-[44px] transition-all duration-200"
