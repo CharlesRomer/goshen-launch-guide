@@ -212,8 +212,8 @@ Type "Yes" to get started with your personalized coaching session.`,
     <div 
       className="bg-gradient-hero flex flex-col relative overflow-hidden transition-all duration-300"
       style={{ 
-        height: isMobile ? `${viewportHeight}px` : '100vh',
-        maxHeight: isMobile ? `${viewportHeight}px` : '100vh'
+        height: isMobile ? `${viewportHeight}px` : 'calc(100vh - 48px)',
+        maxHeight: isMobile ? `${viewportHeight}px` : 'calc(100vh - 48px)'
       }}
     >
       {/* Header - Fixed */}
