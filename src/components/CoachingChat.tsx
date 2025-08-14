@@ -32,11 +32,14 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState<string[]>([]);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver>();
+  const inputContainerRef = useRef<HTMLDivElement>(null);
   
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -102,9 +105,51 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
     loadInitialData();
   }, [sessionId]);
 
-  // Mobile-specific optimizations
+  // Visual viewport and keyboard handling for mobile
   useEffect(() => {
     if (!isMobile) return;
+
+    const handleVisualViewportChange = () => {
+      if (!window.visualViewport) return;
+      
+      const viewport = window.visualViewport;
+      const windowHeight = window.innerHeight;
+      const viewportHeight = viewport.height;
+      const heightDiff = windowHeight - viewportHeight;
+      
+      // Detect keyboard open/close
+      const wasKeyboardOpen = isKeyboardOpen;
+      const isNowKeyboardOpen = heightDiff > 150; // Threshold for keyboard detection
+      
+      setIsKeyboardOpen(isNowKeyboardOpen);
+      setKeyboardHeight(heightDiff);
+      
+      // Update input container position for keyboard
+      if (inputContainerRef.current) {
+        if (isNowKeyboardOpen) {
+          // Position fixed at visual viewport bottom when keyboard is open
+          inputContainerRef.current.style.position = 'fixed';
+          inputContainerRef.current.style.bottom = '0px';
+          inputContainerRef.current.style.transform = `translateY(-${Math.max(0, heightDiff - (window.innerHeight - viewportHeight))}px)`;
+        } else {
+          // Return to sticky positioning when keyboard is closed
+          inputContainerRef.current.style.position = 'sticky';
+          inputContainerRef.current.style.transform = 'none';
+        }
+      }
+      
+      // Auto-scroll to bottom if user was at bottom and keyboard opens
+      if (isNowKeyboardOpen && !wasKeyboardOpen && isAtBottom) {
+        requestAnimationFrame(() => {
+          scrollToBottom(true);
+        });
+      }
+    };
+
+    // Set up visual viewport listener
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleVisualViewportChange);
+    }
 
     // Prevent zoom on input focus
     const viewport = document.querySelector('meta[name="viewport"]');
@@ -125,6 +170,9 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
       document.addEventListener('focusout', handleBlur);
 
       return () => {
+        if (window.visualViewport) {
+          window.visualViewport.removeEventListener('resize', handleVisualViewportChange);
+        }
         document.removeEventListener('focusin', handleFocus);
         document.removeEventListener('focusout', handleBlur);
         if (originalContent) {
@@ -132,7 +180,13 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
         }
       };
     }
-  }, [isMobile]);
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleVisualViewportChange);
+      }
+    };
+  }, [isMobile, isAtBottom, isKeyboardOpen, scrollToBottom]);
 
   const loadInitialData = async () => {
     try {
@@ -269,7 +323,15 @@ Type "Yes" to get started with your personalized coaching session.`,
     borderTop: '1px solid hsl(var(--border) / 0.5)',
     background: 'hsl(var(--card) / 0.98)',
     backdropFilter: 'blur(8px)',
-    paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom), 16px)' : '16px'
+    paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom), 16px)' : '16px',
+    // Ensure proper safe-area handling for mobile
+    ...(isMobile && {
+      paddingLeft: 'env(safe-area-inset-left)',
+      paddingRight: 'env(safe-area-inset-right)',
+      width: '100%',
+      left: 0,
+      right: 0
+    })
   };
 
   return (
@@ -381,7 +443,7 @@ Type "Yes" to get started with your personalized coaching session.`,
       </main>
 
       {/* Input Bar */}
-      <footer style={inputContainerStyle}>
+      <footer ref={inputContainerRef} style={inputContainerStyle}>
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex items-end gap-2">
             <Textarea
