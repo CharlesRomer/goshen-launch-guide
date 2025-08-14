@@ -203,10 +203,11 @@ Type "Yes" to get started with your personalized coaching session.`,
 
   return (
     <div 
-      className="bg-gradient-hero flex flex-col relative overflow-hidden transition-all duration-300"
+      className="bg-gradient-hero flex flex-col relative overflow-hidden"
       style={{ 
         height: isMobile ? `${viewportHeight}px` : 'calc(100vh - 48px)',
-        maxHeight: isMobile ? `${viewportHeight}px` : 'calc(100vh - 48px)'
+        maxHeight: isMobile ? `${viewportHeight}px` : 'calc(100vh - 48px)',
+        minHeight: isMobile ? `${viewportHeight}px` : 'calc(100vh - 48px)'
       }}
     >
       {/* Header - Fixed */}
@@ -244,7 +245,7 @@ Type "Yes" to get started with your personalized coaching session.`,
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto overflow-x-hidden relative scroll-smooth"
         style={{
-          paddingBottom: '20px'
+          paddingBottom: isMobile ? '80px' : '20px'
         }}
       >
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4">
@@ -316,7 +317,16 @@ Type "Yes" to get started with your personalized coaching session.`,
       </div>
 
       {/* Input Bar - Fixed at Bottom */}
-      <div className="flex-none border-t border-border/50 bg-card/98 backdrop-blur-sm relative z-50">
+      <div 
+        className="flex-none border-t border-border/50 bg-card/98 backdrop-blur-sm relative z-50"
+        style={{
+          position: isMobile && isKeyboardOpen ? 'fixed' : 'relative',
+          bottom: isMobile && isKeyboardOpen ? '0' : 'auto',
+          left: isMobile && isKeyboardOpen ? '0' : 'auto',
+          right: isMobile && isKeyboardOpen ? '0' : 'auto',
+          width: isMobile && isKeyboardOpen ? '100%' : 'auto'
+        }}
+      >
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
           <div className="flex gap-2">
             <Input
