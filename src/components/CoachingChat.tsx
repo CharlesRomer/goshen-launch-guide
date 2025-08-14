@@ -124,16 +124,18 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
       setIsKeyboardOpen(isNowKeyboardOpen);
       setKeyboardHeight(heightDiff);
       
-      // Update input container position for keyboard
+      // Update input container position for keyboard with proper safe-area handling
       if (inputContainerRef.current) {
         if (isNowKeyboardOpen) {
           // Position fixed at visual viewport bottom when keyboard is open
           inputContainerRef.current.style.position = 'fixed';
           inputContainerRef.current.style.bottom = '0px';
-          inputContainerRef.current.style.transform = `translateY(-${Math.max(0, heightDiff - (window.innerHeight - viewportHeight))}px)`;
+          inputContainerRef.current.style.paddingBottom = `max(${Math.max(0, heightDiff - (window.innerHeight - viewportHeight))}px, env(safe-area-inset-bottom))`;
+          inputContainerRef.current.style.transform = 'none';
         } else {
           // Return to sticky positioning when keyboard is closed
           inputContainerRef.current.style.position = 'sticky';
+          inputContainerRef.current.style.paddingBottom = 'max(env(safe-area-inset-bottom), 16px)';
           inputContainerRef.current.style.transform = 'none';
         }
       }
@@ -324,13 +326,15 @@ Type "Yes" to get started with your personalized coaching session.`,
     background: 'hsl(var(--card) / 0.98)',
     backdropFilter: 'blur(8px)',
     paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom), 16px)' : '16px',
+    paddingLeft: isMobile ? 'max(env(safe-area-inset-left), 12px)' : '0px',
+    paddingRight: isMobile ? 'max(env(safe-area-inset-right), 12px)' : '0px',
     // Ensure proper safe-area handling for mobile
     ...(isMobile && {
-      paddingLeft: 'env(safe-area-inset-left)',
-      paddingRight: 'env(safe-area-inset-right)',
       width: '100%',
       left: 0,
-      right: 0
+      right: 0,
+      // Force safe-area respect even with position changes
+      paddingBottom: 'max(env(safe-area-inset-bottom), 16px)'
     })
   };
 
