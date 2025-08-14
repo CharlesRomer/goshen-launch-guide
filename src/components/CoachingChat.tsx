@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,42 +32,150 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [isUserScrolled, setIsUserScrolled] = useState(false);
+  const [lastScrollHeight, setLastScrollHeight] = useState(0);
+  const [inputHeight, setInputHeight] = useState(44);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  const scrollToBottom = () => {
-    if (messagesEndRef.current && isNearBottom) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
-  };
+  // Robust scroll to bottom with user intent detection
+  const scrollToBottom = useCallback((force = false) => {
+    if (!messagesEndRef.current || (!force && isUserScrolled)) return;
+    
+    messagesEndRef.current.scrollIntoView({ 
+      behavior: "smooth", 
+      block: "end",
+      inline: "nearest"
+    });
+  }, [isUserScrolled]);
 
-  const scrollToBottomImmediate = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto", block: "end" });
-    }
-  };
+  const scrollToBottomImmediate = useCallback((force = false) => {
+    if (!messagesEndRef.current || (!force && isUserScrolled)) return;
+    
+    messagesEndRef.current.scrollIntoView({ 
+      behavior: "auto", 
+      block: "end",
+      inline: "nearest"
+    });
+  }, [isUserScrolled]);
 
-  const checkIfNearBottom = () => {
-    if (messagesContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-      const threshold = 100; // pixels from bottom
-      setIsNearBottom(scrollHeight - scrollTop - clientHeight < threshold);
-    }
-  };
+  // Enhanced scroll detection with better threshold
+  const handleScroll = useCallback(() => {
+    if (!messagesContainerRef.current) return;
 
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    const scrollBottom = scrollHeight - scrollTop - clientHeight;
+    const threshold = 50; // More forgiving threshold
+    
+    const wasUserScrolled = isUserScrolled;
+    const newIsUserScrolled = scrollBottom > threshold;
+    
+    if (wasUserScrolled !== newIsUserScrolled) {
+      setIsUserScrolled(newIsUserScrolled);
+    }
+
+    // Clear any pending scroll timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    // Reset scroll detection after user stops scrolling
+    scrollTimeoutRef.current = setTimeout(() => {
+      if (scrollBottom <= threshold) {
+        setIsUserScrolled(false);
+      }
+    }, 150);
+  }, [isUserScrolled]);
+
+  // Handle input height changes for multiline
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentMessage(e.target.value);
+    
+    // Measure input height to prevent layout jumps
+    if (inputRef.current) {
+      const newHeight = Math.max(44, Math.min(120, inputRef.current.scrollHeight));
+      if (newHeight !== inputHeight) {
+        setInputHeight(newHeight);
+        // Force scroll update after height change
+        if (!isUserScrolled) {
+          setTimeout(() => scrollToBottomImmediate(true), 50);
+        }
+      }
+    }
+  }, [inputHeight, isUserScrolled, scrollToBottomImmediate]);
+
+  // Improved auto-scroll on new messages
   useEffect(() => {
-    if (isNearBottom) {
-      scrollToBottom();
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const currentScrollHeight = container.scrollHeight;
+    const heightDiff = currentScrollHeight - lastScrollHeight;
+    
+    if (heightDiff > 0 && !isUserScrolled) {
+      // New content added and user is at bottom
+      setTimeout(() => scrollToBottom(true), 50);
     }
-  }, [messages, isNearBottom]);
+    
+    setLastScrollHeight(currentScrollHeight);
+  }, [messages, isLoading, lastScrollHeight, isUserScrolled, scrollToBottom]);
 
   useEffect(() => {
     loadInitialData();
   }, [sessionId]);
+
+  // Enhanced viewport handling for mobile
+  useEffect(() => {
+    if (!isMobile) return;
+
+    let ticking = false;
+    
+    const handleViewportChange = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          // Force layout recalculation
+          if (messagesContainerRef.current) {
+            messagesContainerRef.current.style.height = 'auto';
+            messagesContainerRef.current.offsetHeight; // Trigger reflow
+          }
+          
+          // Scroll to bottom if user was at bottom
+          if (!isUserScrolled) {
+            setTimeout(() => scrollToBottomImmediate(true), 100);
+          }
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    // Listen to multiple viewport events
+    window.addEventListener('resize', handleViewportChange, { passive: true });
+    window.addEventListener('orientationchange', handleViewportChange);
+    
+    // Visual viewport API for better mobile support
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+      window.visualViewport.addEventListener('scroll', handleViewportChange);
+    }
+
+    return () => {
+      window.removeEventListener('resize', handleViewportChange);
+      window.removeEventListener('orientationchange', handleViewportChange);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
+        window.visualViewport.removeEventListener('scroll', handleViewportChange);
+      }
+    };
+  }, [isMobile, isUserScrolled, scrollToBottomImmediate]);
 
   const loadInitialData = async () => {
     try {
@@ -112,7 +220,8 @@ Type "Yes" to get started with your personalized coaching session.`,
       }
 
       // Always scroll to bottom after loading data
-      setTimeout(scrollToBottomImmediate, 100);
+      setIsUserScrolled(false);
+      setTimeout(() => scrollToBottomImmediate(true), 200);
 
     } catch (error: any) {
       console.error('Error loading data:', error);
@@ -130,6 +239,8 @@ Type "Yes" to get started with your personalized coaching session.`,
 
     setIsLoading(true);
     setCurrentMessage("");
+    setInputHeight(44); // Reset input height
+    setIsUserScrolled(false); // Ensure we scroll to new messages
 
     const userMessage: Message = {
       role: 'user',
@@ -160,7 +271,6 @@ Type "Yes" to get started with your personalized coaching session.`,
 
       setMessages(prev => [...prev, aiMessage]);
 
-
     } catch (error: any) {
       console.error('Error sending message:', error);
       toast({
@@ -182,17 +292,23 @@ Type "Yes" to get started with your personalized coaching session.`,
     }
   };
 
+  const handleInputFocus = () => {
+    // Ensure we're at bottom when focusing input
+    setIsUserScrolled(false);
+    setTimeout(() => scrollToBottomImmediate(true), 150);
+  };
+
   return (
     <div 
       className="bg-gradient-hero flex flex-col relative overflow-hidden"
       style={{ 
         height: isMobile ? '100dvh' : 'calc(100vh - 48px)',
-        maxHeight: isMobile ? '100dvh' : 'calc(100vh - 48px)',
-        minHeight: isMobile ? '100dvh' : 'calc(100vh - 48px)'
+        minHeight: isMobile ? '100svh' : 'calc(100vh - 48px)',
+        maxHeight: isMobile ? '100dvh' : 'calc(100vh - 48px)'
       }}
     >
       {/* Header - Fixed */}
-      <div className="flex-none border-b border-border/50 bg-card/98 backdrop-blur-sm relative z-20">
+      <header className="flex-none border-b border-border/50 bg-card/98 backdrop-blur-sm relative z-20">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -219,18 +335,20 @@ Type "Yes" to get started with your personalized coaching session.`,
             </Button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Messages Container - Scrollable */}
-      <div 
+      <main 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden relative scroll-smooth"
-        onScroll={checkIfNearBottom}
+        className="flex-1 overflow-y-auto overflow-x-hidden relative"
+        onScroll={handleScroll}
         style={{
-          paddingBottom: 'env(safe-area-inset-bottom, 80px)'
+          scrollBehavior: 'smooth',
+          overscrollBehavior: 'contain',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
-        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 pb-6">
           <div className="space-y-3 sm:space-y-4">
             {messages.map((message, index) => (
               <Card 
@@ -293,41 +411,43 @@ Type "Yes" to get started with your personalized coaching session.`,
             )}
 
             {/* Scroll anchor */}
-            <div ref={messagesEndRef} className="h-1 w-1" />
+            <div ref={messagesEndRef} className="h-1 w-1 opacity-0" />
           </div>
         </div>
-      </div>
+      </main>
 
-      {/* Input Bar - Fixed at Bottom */}
-      <div 
+      {/* Input Bar - Sticky at Bottom with Safe Area */}
+      <footer 
+        ref={composerRef}
         className="flex-none border-t border-border/50 bg-card/98 backdrop-blur-sm relative z-50"
         style={{
-          paddingBottom: 'env(safe-area-inset-bottom, 16px)'
+          paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom, 0px), 16px)' : '16px',
+          minHeight: inputHeight + 32 // Account for padding
         }}
       >
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-end">
             <Input
               ref={inputRef}
               value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
+              onChange={handleInputChange}
               onKeyPress={handleKeyPress}
-              onFocus={() => {
-                // Ensure we're at bottom when focusing input
-                setTimeout(() => {
-                  setIsNearBottom(true);
-                  scrollToBottomImmediate();
-                }, 100);
-              }}
+              onFocus={handleInputFocus}
               placeholder="Type your message..."
-              className="flex-1 text-base border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50 min-h-[44px] transition-all duration-200"
+              className="flex-1 text-base border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 bg-background/50 transition-all duration-200 resize-none"
+              style={{
+                minHeight: '44px',
+                height: `${inputHeight}px`,
+                maxHeight: '120px',
+                overflowY: inputHeight > 44 ? 'auto' : 'hidden'
+              }}
               disabled={isLoading}
             />
             <Button 
               onClick={() => sendMessage()}
               disabled={!currentMessage.trim() || isLoading}
               size="sm"
-              className="bg-gradient-primary hover:shadow-gold transition-all duration-300 px-3 min-h-[44px] min-w-[44px]"
+              className="bg-gradient-primary hover:shadow-gold transition-all duration-300 px-3 min-h-[44px] min-w-[44px] flex-shrink-0"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -337,7 +457,7 @@ Type "Yes" to get started with your personalized coaching session.`,
             </Button>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
