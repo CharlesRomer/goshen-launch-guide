@@ -137,7 +137,7 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
         .eq("id", sessionId)
         .single();
 
-      const conversationLog = (sessionData?.conversation_log as Message[]) || [];
+      const conversationLog = (sessionData?.conversation_log as unknown as Message[]) || [];
       setMessages(conversationLog);
 
       const { data: promptData } = await supabase
