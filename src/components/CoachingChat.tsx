@@ -41,6 +41,7 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
   
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -59,8 +60,35 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   const checkIfNearBottom = () => {
     if (messagesContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-      const threshold = 100;
-      setIsNearBottom(scrollTop + clientHeight >= scrollHeight - threshold);
+      
+      // When keyboard is open, we need a larger threshold because the viewport is smaller
+      const threshold = keyboardHeight > 0 ? 150 : 100;
+      const isNear = scrollTop + clientHeight >= scrollHeight - threshold;
+      
+      // Only update if there's a meaningful change to prevent rapid state updates
+      if (isNear !== isNearBottom) {
+        setIsNearBottom(isNear);
+      }
+    }
+  };
+
+  const handleUserScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    // Clear any pending auto-scroll when user manually scrolls
+    clearTimeout(scrollTimeoutRef.current);
+    
+    // Check scroll position
+    checkIfNearBottom();
+    
+    // If user scrolled to bottom manually while keyboard is open, 
+    // respect their intention and don't auto-scroll away
+    if (keyboardHeight > 0) {
+      const container = e.currentTarget;
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50;
+      
+      if (isAtBottom && !isNearBottom) {
+        setIsNearBottom(true);
+      }
     }
   };
 
@@ -81,8 +109,13 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isNearBottom]);
+    // Only auto-scroll for new messages if:
+    // 1. User was at bottom before the new message
+    // 2. Keyboard is not currently open (or just closed)
+    if (isNearBottom && (keyboardHeight === 0 || !isMobile)) {
+      scrollToBottom('smooth');
+    }
+  }, [messages]);
 
   useEffect(() => {
     updateComposerHeight();
@@ -101,10 +134,36 @@ export const CoachingChat = ({ sessionId, pathwayStage, onRestart }: CoachingCha
   }, []);
 
   useEffect(() => {
-    if (isMobile && isNearBottom) {
-      setTimeout(() => scrollToBottom('auto'), 50);
+    if (isMobile) {
+      // Clear any pending scroll operations
+      clearTimeout(scrollTimeoutRef.current);
+      
+      // Only auto-scroll if user was already at bottom AND viewport is becoming larger
+      // (meaning keyboard is closing, not opening)
+      if (isNearBottom) {
+        const isKeyboardClosing = keyboardHeight === 0 && viewportHeight > (window.innerHeight * 0.8);
+        
+        if (isKeyboardClosing) {
+          // Keyboard is closing - safe to auto-scroll
+          scrollTimeoutRef.current = setTimeout(() => scrollToBottom('auto'), 100);
+        } else if (keyboardHeight === 0) {
+          // No keyboard - normal auto-scroll
+          scrollTimeoutRef.current = setTimeout(() => scrollToBottom('auto'), 50);
+        }
+        // When keyboard is opening or open, don't auto-scroll
+      }
     }
+    
+    return () => {
+      clearTimeout(scrollTimeoutRef.current);
+    };
   }, [viewportHeight, keyboardHeight, isMobile, isNearBottom]);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(scrollTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     loadInitialData();
@@ -293,7 +352,7 @@ Type "Yes" to get started with your personalized coaching session.`,
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto overflow-x-hidden relative"
         style={messagesContainerStyle}
-        onScroll={checkIfNearBottom}
+        onScroll={handleUserScroll}
       >
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4">
           <div className="space-y-3 sm:space-y-4">
