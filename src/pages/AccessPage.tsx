@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import goshenLogo from "@/assets/goshen-logo.png";
 
 const AccessPage = () => {
   const [email, setEmail] = useState("");
@@ -35,9 +34,9 @@ const AccessPage = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img 
-            src={goshenLogo} 
-            alt="Goshen Logo" 
-            className="h-16 sm:h-20 mx-auto mb-8 object-contain"
+            src="/lovable-uploads/134b4b6c-5e9d-47a6-ac2c-0fe90ce02fbf.png" 
+            alt="Goshen Digital Launch" 
+            className="w-32 h-32 sm:w-36 sm:h-36 mx-auto mb-8 object-contain"
           />
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             Welcome
