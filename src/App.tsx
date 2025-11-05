@@ -20,8 +20,8 @@ const App = () => (
         <MouseflowTracker />
         <VIPBanner />
         <Routes>
-          <Route path="/" element={<AccessPage />} />
-          <Route path="/coaching" element={<Index />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/access" element={<AccessPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
