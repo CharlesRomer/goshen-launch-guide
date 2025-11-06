@@ -13,7 +13,7 @@ const AccessPage = () => {
 
   const handleAccess = () => {
     if (isValidEmail(email)) {
-      window.location.href = "https://launchyourproductin7days-nlk2lt8.gamma.site/";
+      window.location.href = "https://launch.goshendigital.ai/";
     } else {
       toast({
         title: "Invalid Email",
