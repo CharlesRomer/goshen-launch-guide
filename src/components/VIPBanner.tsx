@@ -6,7 +6,7 @@ const VIPBanner = () => {
         <Sparkles className="h-4 w-4 text-primary animate-pulse" />
         <span className="text-foreground/90 font-medium">Schedule a strategy call to launch with our team!</span>
         <Button size="sm" variant="outline" className="h-7 px-3 text-xs border-primary/30 hover:bg-primary/10 hover:border-primary/50" asChild>
-          <a href="https://go.goshenites.com/ZWw7KR" target="_blank" rel="noopener noreferrer">Launch with our help!</a>
+          <a target="_blank" rel="noopener noreferrer" href="https://lp.goshenites.com/calendar-5098-1699-or">Launch with our help!</a>
         </Button>
       </div>
     </div>;
