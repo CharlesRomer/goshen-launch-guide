@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import AccessPage from "./pages/AccessPage";
+import Calculator from "./pages/Calculator";
 import NotFound from "./pages/NotFound";
 import MouseflowTracker from "@/analytics/MouseflowTracker";
 import VIPBanner from "@/components/VIPBanner";
@@ -22,6 +23,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/access" element={<AccessPage />} />
+          <Route path="/calculator" element={<Calculator />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
