@@ -115,7 +115,7 @@ const Calculator = () => {
   };
 
   const getPriceRecommendationIcon = () => {
-    if (!research) return null;
+    if (!research?.priceAnalysis?.recommendation) return null;
     switch (research.priceAnalysis.recommendation) {
       case "increase":
         return <TrendingUp className="h-6 w-6 text-green-500" />;
@@ -123,11 +123,13 @@ const Calculator = () => {
         return <TrendingDown className="h-6 w-6 text-amber-500" />;
       case "optimal":
         return <CheckCircle className="h-6 w-6 text-primary" />;
+      default:
+        return null;
     }
   };
 
   const getPriceRecommendationText = () => {
-    if (!research) return "";
+    if (!research?.priceAnalysis?.recommendation) return "";
     switch (research.priceAnalysis.recommendation) {
       case "increase":
         return "You're Underpricing!";
@@ -135,11 +137,13 @@ const Calculator = () => {
         return "Consider Lowering Price";
       case "optimal":
         return "Perfect Price Point!";
+      default:
+        return "";
     }
   };
 
   const getMarketPositionColor = () => {
-    if (!research) return "text-muted-foreground";
+    if (!research?.priceAnalysis?.marketPosition) return "text-muted-foreground";
     switch (research.priceAnalysis.marketPosition) {
       case "budget":
         return "text-blue-400";
@@ -149,6 +153,8 @@ const Calculator = () => {
         return "text-purple-400";
       case "luxury":
         return "text-amber-400";
+      default:
+        return "text-muted-foreground";
     }
   };
 
