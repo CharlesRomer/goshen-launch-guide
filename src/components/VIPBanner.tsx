@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+
 const VIPBanner = () => {
+  const [searchParams] = useSearchParams();
+  const showBanner = searchParams.get("showBanner") === "true";
+
+  if (!showBanner) return null;
+
   return <div className="w-full bg-gradient-to-r from-primary/10 to-accent/10 border-b border-border/20 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-2 flex items-center justify-center gap-3 text-sm">
         <Sparkles className="h-4 w-4 text-primary animate-pulse" />
